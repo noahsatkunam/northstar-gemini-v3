@@ -1,8 +1,7 @@
 import { Layout } from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
-import { CheckCircle2, Award, Handshake, Lightbulb, Users, Globe, ShieldCheck, Trophy } from "lucide-react";
+import { CheckCircle2, Handshake, Lightbulb, Users, ShieldCheck } from "lucide-react";
 import { useContactModal } from "@/components/ContactModal";
-import { motion } from "framer-motion";
+import { AnimatedSection } from "@/components/motion/AnimatedSection";
 import inc5000Badge from "@/assets/inc-5000-badge.png";
 import soc2Badge from "@/assets/soc2-badge.webp";
 import hipaaBadge from "@/assets/hipaa-badge.png";
@@ -52,21 +51,17 @@ export default function About() {
   return (
     <Layout>
       {/* HERO */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-foreground text-background">
+      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden bg-foreground text-background">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-10 invert" />
-        <div className="container relative z-10 px-4 md:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            <h1 className="text-5xl md:text-7xl lg:text-9xl font-bold tracking-tighter mb-8 text-white">
+        <div className="container relative z-10 px-4 md:px-8 text-center pt-20">
+          <AnimatedSection>
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-8 text-white">
               Your Technology Partner for the <span className="text-primary">Long Haul</span>
             </h1>
             <p className="text-xl md:text-3xl text-gray-400 max-w-3xl mx-auto leading-relaxed font-light">
               Building trusted relationships through reliable IT solutions since 2000
             </p>
-          </motion.div>
+          </AnimatedSection>
         </div>
       </section>
 
@@ -75,17 +70,14 @@ export default function About() {
         <div className="container px-4 md:px-8">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
             {stats.map((stat, index) => (
-              <motion.div 
+              <AnimatedSection 
                 key={index}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
+                delay={index * 0.1}
                 className="text-center"
               >
                 <div className="text-4xl md:text-6xl font-bold text-primary mb-2">{stat.value}</div>
                 <div className="text-sm md:text-base text-muted-foreground uppercase tracking-wider font-medium">{stat.label}</div>
-              </motion.div>
+              </AnimatedSection>
             ))}
           </div>
         </div>
@@ -117,8 +109,7 @@ export default function About() {
               </div>
             </div>
             <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary to-accent opacity-20 blur-3xl rounded-full" />
-              <div className="relative aspect-square rounded-3xl overflow-hidden bg-card border border-border/50 shadow-2xl rotate-3 hover:rotate-0 transition-transform duration-500">
+              <div className="relative aspect-square rounded-3xl overflow-hidden bg-card border border-border/50 shadow-lg">
                 <img 
                   src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&q=80&w=800" 
                   alt="Team collaboration" 
@@ -142,13 +133,10 @@ export default function About() {
 
           <div className="grid md:grid-cols-2 gap-8">
             {values.map((value, index) => (
-              <motion.div
+              <AnimatedSection
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="group p-10 rounded-3xl bg-card border border-border/50 hover:border-primary/30 hover:shadow-xl transition-all duration-300"
+                delay={index * 0.1}
+                className="group p-10 rounded-3xl bg-card border border-border/50 hover:border-primary/30 hover:shadow-lg transition-all duration-300"
               >
                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-white transition-colors">
                   <value.icon className="w-7 h-7 text-primary group-hover:text-white transition-colors" />
@@ -157,7 +145,7 @@ export default function About() {
                 <p className="text-muted-foreground leading-relaxed text-lg">
                   {value.description}
                 </p>
-              </motion.div>
+              </AnimatedSection>
             ))}
           </div>
         </div>
@@ -169,7 +157,7 @@ export default function About() {
           <h2 className="text-3xl md:text-5xl font-bold mb-16 text-center">Leadership Team</h2>
           <div className="grid md:grid-cols-3 gap-8">
             {teamMembers.map((member, index) => (
-              <div key={index} className="group relative overflow-hidden rounded-3xl bg-background border border-border/50">
+              <div key={index} className="group relative overflow-hidden rounded-3xl bg-background border border-border/50 hover:shadow-lg transition-all">
                 <div className="aspect-[4/5] overflow-hidden">
                   {member.image ? (
                     <img 
@@ -212,7 +200,7 @@ export default function About() {
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="block rounded-3xl border border-border/50 bg-card p-6 text-center hover:shadow-xl hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
+                className="block rounded-3xl border border-border/50 bg-card p-6 text-center hover:shadow-lg hover:border-primary/30 transition-all duration-300 hover:-translate-y-1"
               >
                 <span className="text-lg font-bold text-foreground">{item.label}</span>
               </a>
@@ -247,7 +235,7 @@ export default function About() {
           <h2 className="text-4xl md:text-6xl font-bold mb-8">Want to Learn More?</h2>
           <Button 
             size="lg" 
-            className="h-16 px-10 text-xl rounded-full bg-primary hover:bg-primary/90 text-white shadow-2xl hover:scale-105 transition-all"
+            className="h-16 px-10 text-xl rounded-full bg-primary hover:bg-primary/90 text-white shadow-xl hover:scale-105 transition-all"
             onClick={openModal}
           >
             Get in Touch

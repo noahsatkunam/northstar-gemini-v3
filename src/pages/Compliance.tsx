@@ -1,11 +1,9 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Shield, FileCheck, Building2, Search, Map, Settings, Activity, CheckCircle2, Award, ChevronDown, Lock, ShieldCheck, BarChart3, Scale, ArrowRight, FileText } from "lucide-react";
+import { Shield, FileCheck, Search, Map, Settings, Activity, CheckCircle2, Lock, ShieldCheck, BarChart3, Scale, FileText } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useContactModal } from "@/components/ContactModal";
-import { motion } from "framer-motion";
-import soc2Badge from "@/assets/soc2-badge.webp";
-import hipaaBadge from "@/assets/hipaa-badge.png";
+import { AnimatedSection } from "@/components/motion/AnimatedSection";
 
 const complianceAreas = [
   {
@@ -58,15 +56,11 @@ export default function Compliance() {
   return (
     <Layout>
       {/* HERO */}
-      <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden bg-background pt-20">
+      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden bg-background pt-20">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03]" />
         
         <div className="container relative z-10 px-4 md:px-8 text-center">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
+          <AnimatedSection>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6 border border-primary/20">
               <ShieldCheck className="w-4 h-4" />
               <span>Audit-Ready Infrastructure</span>
@@ -85,7 +79,7 @@ export default function Compliance() {
                 Request a Compliance Assessment
               </Button>
             </div>
-          </motion.div>
+          </AnimatedSection>
         </div>
       </section>
 
@@ -94,13 +88,10 @@ export default function Compliance() {
         <div className="container px-4 md:px-8">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {complianceAreas.map((area, index) => (
-              <motion.div
+              <AnimatedSection
                 key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.1 }}
-                className="group relative overflow-hidden rounded-3xl bg-background border border-border/50 p-8 hover:shadow-2xl hover:border-primary/30 transition-all duration-300"
+                delay={index * 0.1}
+                className="group relative overflow-hidden rounded-3xl bg-background border border-border/50 p-8 hover:shadow-xl hover:border-primary/30 transition-all duration-300"
               >
                 <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity transform group-hover:scale-110">
                   <area.icon className="w-32 h-32" />
@@ -126,7 +117,7 @@ export default function Compliance() {
                     ))}
                   </ul>
                 </div>
-              </motion.div>
+              </AnimatedSection>
             ))}
           </div>
         </div>
@@ -151,12 +142,9 @@ export default function Compliance() {
               { title: "Implement", desc: "Technical and administrative controls", icon: FileText },
               { title: "Monitor", desc: "Ongoing validation and improvement", icon: Activity }
             ].map((step, i) => (
-              <motion.div 
+              <AnimatedSection 
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.2 }}
+                delay={i * 0.2}
                 className="relative text-center group"
               >
                 <div className="w-24 h-24 mx-auto bg-background border-4 border-muted rounded-full flex items-center justify-center mb-6 relative z-10 group-hover:border-primary transition-colors duration-300">
@@ -164,7 +152,7 @@ export default function Compliance() {
                 </div>
                 <h3 className="text-xl font-bold mb-2">{step.title}</h3>
                 <p className="text-muted-foreground">{step.desc}</p>
-              </motion.div>
+              </AnimatedSection>
             ))}
           </div>
         </div>

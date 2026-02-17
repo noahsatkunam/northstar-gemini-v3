@@ -7,7 +7,6 @@ import {
   Shield,
   ShieldCheck,
   ShieldAlert,
-  ShieldX,
   CheckCircle,
   XCircle,
   AlertTriangle,
@@ -24,10 +23,7 @@ import {
   Server,
   Bug,
   Download,
-  ExternalLink,
-  FileText,
   Scan,
-  Lock,
   Ban
 } from "lucide-react";
 import { useContactModal } from "@/components/ContactModal";
@@ -42,11 +38,10 @@ import {
   type ExternalScanAssessment,
 } from "@/services/api";
 import { submitRiskAssessment } from "@/services/ghl";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatedSection } from "@/components/motion/AnimatedSection";
 
 // ==================== TYPES ====================
 
-type SecurityGrade = "A" | "B" | "C" | "D" | "F" | "n/a";
 type RecordStatus = "pass" | "fail" | "warning" | "unknown";
 type OverallScore = "strong" | "needs-attention" | "at-risk";
 
@@ -280,13 +275,12 @@ function CircularGrade({ grade, size = "lg" }: { grade: string; size?: "sm" | "l
     <div className={`relative inline-flex items-center justify-center ${dims}`}>
       <svg className="w-full h-full transform -rotate-90" viewBox={viewBox}>
         <circle cx={cx} cy={cx} r={radius} stroke="currentColor" strokeWidth={strokeW} fill="none" className="text-muted/20" />
-        <motion.circle 
+        <circle 
           cx={cx} cy={cx} r={radius} stroke={strokeColor} strokeWidth={strokeW} fill="none"
           strokeLinecap="round" 
-          initial={{ strokeDashoffset: circumference }}
-          animate={{ strokeDashoffset: offset }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
           strokeDasharray={circumference}
+          strokeDashoffset={offset}
+          className="transition-all duration-1000 ease-out"
         />
       </svg>
       <span className={`absolute ${textSize} font-bold ${getGradeColor(grade)}`}>{grade || "?"}</span>
@@ -481,11 +475,7 @@ export default function RiskAssessment() {
         <div className="absolute top-0 right-0 w-[60vw] h-[60vw] bg-primary/5 rounded-full blur-[100px] animate-pulse" />
         
         <div className="container relative z-10 px-4 md:px-8 text-center">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
+          <AnimatedSection>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/10 text-red-500 text-sm font-medium mb-6 border border-red-500/20">
               <Scan className="w-4 h-4" />
               <span>Full-Stack Security Analysis</span>
@@ -500,7 +490,7 @@ export default function RiskAssessment() {
               Hackers scan your network every day. It's time you did too. <br/>
               Get a comprehensive report on email, infrastructure, and dark web risks.
             </p>
-          </motion.div>
+          </AnimatedSection>
         </div>
       </section>
 
@@ -510,367 +500,343 @@ export default function RiskAssessment() {
           <div className="mx-auto max-w-5xl">
 
             {/* FORM STEP */}
-            <AnimatePresence mode="wait">
-              {step === "form" && (
-                <motion.div 
-                  key="form"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  transition={{ duration: 0.5 }}
-                  className="rounded-[2rem] border border-border/50 bg-card/50 backdrop-blur-xl p-8 md:p-12 shadow-2xl relative overflow-hidden"
-                >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary" />
-                  
-                  <div className="grid gap-8 md:grid-cols-2">
-                    <div className="space-y-6">
-                      <div>
-                        <h2 className="text-2xl font-bold mb-2">Start Your Scan</h2>
-                        <p className="text-muted-foreground">Enter your organization details to begin the automated reconnaissance process.</p>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        {([
-                          { id: "organizationName", label: "Organization Name", icon: Building, placeholder: "Acme Corp", type: "text", required: true },
-                          { id: "domain", label: "Primary Domain", icon: Globe, placeholder: "acme.com", type: "text", required: true },
-                          { id: "contactName", label: "Your Name", icon: User, placeholder: "Jane Doe", type: "text", required: true },
-                          { id: "contactEmail", label: "Work Email", icon: Mail, placeholder: "jane@acme.com", type: "email", required: true },
-                          { id: "contactPhone", label: "Phone (Optional)", icon: Phone, placeholder: "+1 (555) 000-0000", type: "tel", required: false },
-                        ] as const).map(field => (
-                          <div key={field.id}>
-                            <label htmlFor={field.id} className="block text-sm font-medium mb-1.5 ml-1">
-                              {field.label} {field.required && <span className="text-red-500">*</span>}
-                            </label>
-                            <div className="relative group">
-                              <field.icon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
-                              <Input
-                                id={field.id} type={field.type} placeholder={field.placeholder}
-                                value={formData[field.id as keyof AssessmentForm] || ""}
-                                onChange={e => handleInputChange(field.id as keyof AssessmentForm, e.target.value)}
-                                className="h-12 pl-12 bg-background/50 border-border/50 focus:border-primary/50 transition-all rounded-xl"
-                                aria-invalid={!!formErrors[field.id as keyof AssessmentForm]}
-                              />
-                            </div>
-                            {formErrors[field.id as keyof AssessmentForm] && (
-                              <p className="mt-1.5 text-sm text-red-500 ml-1">{formErrors[field.id as keyof AssessmentForm]}</p>
-                            )}
+            {step === "form" && (
+              <AnimatedSection className="rounded-[2rem] border border-border/50 bg-card/50 backdrop-blur-xl p-8 md:p-12 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary via-accent to-primary" />
+                
+                <div className="grid gap-8 md:grid-cols-2">
+                  <div className="space-y-6">
+                    <div>
+                      <h2 className="text-2xl font-bold mb-2">Start Your Scan</h2>
+                      <p className="text-muted-foreground">Enter your organization details to begin the automated reconnaissance process.</p>
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {([
+                        { id: "organizationName", label: "Organization Name", icon: Building, placeholder: "Acme Corp", type: "text", required: true },
+                        { id: "domain", label: "Primary Domain", icon: Globe, placeholder: "acme.com", type: "text", required: true },
+                        { id: "contactName", label: "Your Name", icon: User, placeholder: "Jane Doe", type: "text", required: true },
+                        { id: "contactEmail", label: "Work Email", icon: Mail, placeholder: "jane@acme.com", type: "email", required: true },
+                        { id: "contactPhone", label: "Phone (Optional)", icon: Phone, placeholder: "+1 (555) 000-0000", type: "tel", required: false },
+                      ] as const).map(field => (
+                        <div key={field.id}>
+                          <label htmlFor={field.id} className="block text-sm font-medium mb-1.5 ml-1">
+                            {field.label} {field.required && <span className="text-red-500">*</span>}
+                          </label>
+                          <div className="relative group">
+                            <field.icon className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                            <Input
+                              id={field.id} type={field.type} placeholder={field.placeholder}
+                              value={formData[field.id as keyof AssessmentForm] || ""}
+                              onChange={e => handleInputChange(field.id as keyof AssessmentForm, e.target.value)}
+                              className="h-12 pl-12 bg-background/50 border-border/50 focus:border-primary/50 transition-all rounded-xl"
+                              aria-invalid={!!formErrors[field.id as keyof AssessmentForm]}
+                            />
                           </div>
-                        ))}
-                      </div>
-
-                      <Button 
-                        size="lg" 
-                        onClick={handleSubmit} 
-                        disabled={isSubmitting}
-                        className="w-full h-14 text-lg rounded-xl bg-primary hover:bg-primary/90 shadow-lg hover:shadow-primary/25 transition-all"
-                      >
-                        {isSubmitting ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Initiating Scan...</> : <>Launch Assessment <ArrowRight className="ml-2 h-5 w-5" /></>}
-                      </Button>
-                      
-                      <p className="text-center text-xs text-muted-foreground">
-                        Strictly confidential. We do not share your data.
-                      </p>
+                          {formErrors[field.id as keyof AssessmentForm] && (
+                            <p className="mt-1.5 text-sm text-red-500 ml-1">{formErrors[field.id as keyof AssessmentForm]}</p>
+                          )}
+                        </div>
+                      ))}
                     </div>
 
-                    <div className="hidden md:flex flex-col justify-center items-center relative">
-                      <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-3xl" />
-                      <div className="relative z-10 text-center space-y-8 p-8">
-                        <ShieldCheck className="w-32 h-32 text-primary mx-auto opacity-80" />
-                        <div>
-                          <h3 className="text-xl font-bold mb-2">What we analyze</h3>
-                          <ul className="text-left space-y-3 text-sm text-muted-foreground max-w-xs mx-auto">
-                            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" /> DNS Health & Security</li>
-                            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" /> Exposed Services & Ports</li>
-                            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" /> Email Configuration (DMARC)</li>
-                            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" /> Dark Web Credential Leaks</li>
-                            <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" /> IP Reputation & Blacklists</li>
-                          </ul>
-                        </div>
+                    <Button 
+                      size="lg" 
+                      onClick={handleSubmit} 
+                      disabled={isSubmitting}
+                      className="w-full h-14 text-lg rounded-xl bg-primary hover:bg-primary/90 shadow-lg hover:shadow-primary/25 transition-all"
+                    >
+                      {isSubmitting ? <><Loader2 className="mr-2 h-5 w-5 animate-spin" /> Initiating Scan...</> : <>Launch Assessment <ArrowRight className="ml-2 h-5 w-5" /></>}
+                    </Button>
+                    
+                    <p className="text-center text-xs text-muted-foreground">
+                      Strictly confidential. We do not share your data.
+                    </p>
+                  </div>
+
+                  <div className="hidden md:flex flex-col justify-center items-center relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent rounded-3xl" />
+                    <div className="relative z-10 text-center space-y-8 p-8">
+                      <ShieldCheck className="w-32 h-32 text-primary mx-auto opacity-80" />
+                      <div>
+                        <h3 className="text-xl font-bold mb-2">What we analyze</h3>
+                        <ul className="text-left space-y-3 text-sm text-muted-foreground max-w-xs mx-auto">
+                          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" /> DNS Health & Security</li>
+                          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" /> Exposed Services & Ports</li>
+                          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" /> Email Configuration (DMARC)</li>
+                          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" /> Dark Web Credential Leaks</li>
+                          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" /> IP Reputation & Blacklists</li>
+                        </ul>
                       </div>
                     </div>
                   </div>
-                </motion.div>
-              )}
+                </div>
+              </AnimatedSection>
+            )}
 
-              {/* RESULTS STEP */}
-              {step === "results" && (
-                <motion.div
-                  key="results"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="space-y-8"
-                >
-                  {/* Email Security Section */}
-                  <div className="space-y-4">
-                    <h2 className="text-2xl font-bold flex items-center gap-2">
-                      <Mail className="w-6 h-6 text-primary" /> Email Security
-                    </h2>
-                    
-                    {emailLoading && !emailResults ? (
+            {/* RESULTS STEP */}
+            {step === "results" && (
+              <AnimatedSection className="space-y-8">
+                {/* Email Security Section */}
+                <div className="space-y-4">
+                  <h2 className="text-2xl font-bold flex items-center gap-2">
+                    <Mail className="w-6 h-6 text-primary" /> Email Security
+                  </h2>
+                  
+                  {emailLoading && !emailResults ? (
+                    <Card className="border-border/50">
+                      <CardContent className="p-8 flex items-center justify-center gap-4 text-muted-foreground">
+                        <Loader2 className="animate-spin" /> Analyzing DNS records...
+                      </CardContent>
+                    </Card>
+                  ) : emailResults ? (
+                    <div className="grid gap-4 md:grid-cols-3">
                       <Card className="border-border/50">
-                        <CardContent className="p-8 flex items-center justify-center gap-4 text-muted-foreground">
-                          <Loader2 className="animate-spin" /> Analyzing DNS records...
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm font-medium text-muted-foreground">DMARC</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="font-bold text-lg">Policy</span>
+                            <StatusBadge status={emailResults.dmarc.status} />
+                          </div>
+                          <p className="text-xs text-muted-foreground">{emailResults.dmarc.explanation}</p>
                         </CardContent>
                       </Card>
-                    ) : emailResults ? (
-                      <div className="grid gap-4 md:grid-cols-3">
-                        <Card className="border-border/50">
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">DMARC</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="font-bold text-lg">Policy</span>
-                              <StatusBadge status={emailResults.dmarc.status} />
-                            </div>
-                            <p className="text-xs text-muted-foreground">{emailResults.dmarc.explanation}</p>
-                          </CardContent>
-                        </Card>
-                        <Card className="border-border/50">
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">SPF</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="font-bold text-lg">Record</span>
-                              <StatusBadge status={emailResults.spf.status} />
-                            </div>
-                            <p className="text-xs text-muted-foreground">{emailResults.spf.explanation}</p>
-                          </CardContent>
-                        </Card>
-                        <Card className="border-border/50">
-                          <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium text-muted-foreground">DKIM</CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="flex justify-between items-center mb-2">
-                              <span className="font-bold text-lg">Keys</span>
-                              <StatusBadge status={emailResults.dkim.status} />
-                            </div>
-                            <p className="text-xs text-muted-foreground">{emailResults.dkim.explanation}</p>
-                          </CardContent>
-                        </Card>
-                      </div>
-                    ) : null}
-                  </div>
-
-                  {/* Infrastructure Progress */}
-                  {isScanning && (
-                    <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 flex items-center gap-6 animate-pulse">
-                      <Loader2 className="h-8 w-8 text-primary animate-spin flex-shrink-0" />
-                      <div className="flex-1 space-y-2">
-                        <div className="flex justify-between font-medium">
-                          <span>Scanning Infrastructure: {formData.domain}</span>
-                          <span>In Progress...</span>
-                        </div>
-                        <div className="h-2 bg-primary/10 rounded-full overflow-hidden">
-                          <div className="h-full bg-primary w-2/3 animate-[shimmer_2s_infinite]" />
-                        </div>
-                        <p className="text-sm text-muted-foreground">Checking 1,500+ data points across the open web...</p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Score Card */}
-                  <div className={`rounded-[2.5rem] border p-8 md:p-12 transition-all duration-500 relative overflow-hidden ${isComplete && assessment ? getGradeBg(assessment.securityScore) : "border-border/50 bg-card"}`}>
-                    <div className="relative z-10 flex flex-col md:flex-row items-center gap-12">
-                      <div className="flex-shrink-0">
-                        {isComplete && assessment?.securityScore ? (
-                          <CircularGrade grade={assessment.securityScore} size="lg" />
-                        ) : (
-                          <Skeleton className="w-40 h-40 rounded-full" />
-                        )}
-                      </div>
-                      
-                      <div className="flex-1 text-center md:text-left">
-                        {isComplete && assessment?.securityScore ? (
-                          <>
-                            <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                              {calculateRiskLevel(assessment.securityScore) === "strong" ? "System Secure" :
-                               calculateRiskLevel(assessment.securityScore) === "at-risk" ? "Critical Vulnerabilities Found" :
-                               "Security Improvements Required"}
-                            </h2>
-                            <p className="text-lg text-muted-foreground mb-6">
-                              We found issues that could be exploited by attackers. Your organization has a <span className="font-bold text-foreground">{assessment.securityScore}</span> rating based on external visibility.
-                            </p>
-                            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-                              <div className="px-4 py-2 rounded-lg bg-background/50 border border-border/50 text-sm">
-                                <span className="text-muted-foreground">Target:</span> <span className="font-medium">{formData.domain}</span>
-                              </div>
-                              <div className="px-4 py-2 rounded-lg bg-background/50 border border-border/50 text-sm">
-                                <span className="text-muted-foreground">Date:</span> <span className="font-medium">{new Date().toLocaleDateString()}</span>
-                              </div>
-                            </div>
-                          </>
-                        ) : (
-                          <div className="space-y-4 w-full">
-                            <Skeleton className="w-3/4 h-8" />
-                            <Skeleton className="w-full h-4" />
-                            <Skeleton className="w-2/3 h-4" />
+                      <Card className="border-border/50">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm font-medium text-muted-foreground">SPF</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="font-bold text-lg">Record</span>
+                            <StatusBadge status={emailResults.spf.status} />
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Categories Grid */}
-                  <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {CATEGORIES.map((cat, i) => {
-                      const grade = getCategoryGrade(cat.gradeKey);
-                      const catFindings = getCategoryFindings(cat.key);
-                      const isExpanded = expandedCategory === cat.key;
-                      const Icon = cat.icon;
-
-                      return (
-                        <motion.div 
-                          key={cat.key}
-                          initial={{ opacity: 0, y: 20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.1 }}
-                        >
-                          <Card
-                            className={`h-full cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${isExpanded ? "ring-2 ring-primary border-primary" : "border-border/50"} ${grade ? "" : "opacity-70"}`}
-                            onClick={() => setExpandedCategory(isExpanded ? null : cat.key)}
-                          >
-                            <CardContent className="p-6">
-                              {grade ? (
-                                <>
-                                  <div className="flex justify-between items-start mb-4">
-                                    <div className={`p-3 rounded-xl ${getGradeBg(grade)}`}>
-                                      <Icon className={`h-6 w-6 ${getGradeColor(grade)}`} />
-                                    </div>
-                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border ${getGradeBg(grade)} ${getGradeColor(grade)}`}>
-                                      {grade}
-                                    </div>
-                                  </div>
-                                  
-                                  <h3 className="font-bold text-lg mb-1">{cat.name}</h3>
-                                  <p className="text-sm text-muted-foreground mb-4">{cat.description}</p>
-                                  
-                                  <div className="flex items-center justify-between text-xs font-medium bg-muted/50 p-2 rounded-lg">
-                                    <span>{catFindings.length} Issues Found</span>
-                                    {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                                  </div>
-
-                                  <AnimatePresence>
-                                    {isExpanded && (
-                                      <motion.div 
-                                        initial={{ height: 0, opacity: 0 }}
-                                        animate={{ height: "auto", opacity: 1 }}
-                                        exit={{ height: 0, opacity: 0 }}
-                                        className="overflow-hidden"
-                                      >
-                                        <div className="pt-4 space-y-3">
-                                          {catFindings.length === 0 ? (
-                                            <div className="text-green-500 text-sm flex items-center gap-2">
-                                              <CheckCircle className="w-4 h-4" /> No issues detected
-                                            </div>
-                                          ) : (
-                                            catFindings.map((finding: any, idx: number) => (
-                                              <div key={idx} className="text-sm bg-background p-3 rounded-lg border border-border/50">
-                                                <div className="flex justify-between items-start mb-1">
-                                                  <span className="font-medium">{finding.name || finding.title}</span>
-                                                  {finding.severity && (
-                                                    <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold ${getSeverityColor(finding.severity)}`}>
-                                                      {finding.severity}
-                                                    </span>
-                                                  )}
-                                                </div>
-                                                <p className="text-xs text-muted-foreground">{finding.description}</p>
-                                              </div>
-                                            ))
-                                          )}
-                                        </div>
-                                      </motion.div>
-                                    )}
-                                  </AnimatePresence>
-                                </>
-                              ) : (
-                                <div className="space-y-4">
-                                  <div className="flex justify-between">
-                                    <Skeleton className="w-12 h-12 rounded-xl" />
-                                    <Skeleton className="w-10 h-10 rounded-full" />
-                                  </div>
-                                  <Skeleton className="w-3/4 h-6" />
-                                  <Skeleton className="w-full h-4" />
-                                </div>
-                              )}
-                            </CardContent>
-                          </Card>
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Dark Web Card */}
-                  <Card className="border-border/50 shadow-lg overflow-hidden">
-                    <div className="bg-muted/30 p-6 border-b border-border/50 flex items-center gap-3">
-                      <ShieldAlert className="h-6 w-6 text-orange-500" />
-                      <h3 className="font-bold text-lg">Dark Web Monitoring</h3>
-                    </div>
-                    <CardContent className="p-6">
-                      {breachLoading && !isComplete ? (
-                        <div className="flex items-center gap-3 text-muted-foreground">
-                           <Loader2 className="animate-spin" /> Scanning dark web marketplaces...
-                        </div>
-                      ) : !breachData || (Array.isArray(breachData) && breachData.length === 0) ? (
-                        <div className="flex items-center gap-4 text-green-500">
-                          <CheckCircle className="h-8 w-8" />
-                          <div>
-                            <p className="font-bold">No Leaks Found</p>
-                            <p className="text-sm text-muted-foreground">Your domain does not appear in known breach databases.</p>
+                          <p className="text-xs text-muted-foreground">{emailResults.spf.explanation}</p>
+                        </CardContent>
+                      </Card>
+                      <Card className="border-border/50">
+                        <CardHeader className="pb-2">
+                          <CardTitle className="text-sm font-medium text-muted-foreground">DKIM</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="flex justify-between items-center mb-2">
+                            <span className="font-bold text-lg">Keys</span>
+                            <StatusBadge status={emailResults.dkim.status} />
                           </div>
-                        </div>
+                          <p className="text-xs text-muted-foreground">{emailResults.dkim.explanation}</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ) : null}
+                </div>
+
+                {/* Infrastructure Progress */}
+                {isScanning && (
+                  <div className="rounded-2xl border border-primary/20 bg-primary/5 p-6 flex items-center gap-6 animate-pulse">
+                    <Loader2 className="h-8 w-8 text-primary animate-spin flex-shrink-0" />
+                    <div className="flex-1 space-y-2">
+                      <div className="flex justify-between font-medium">
+                        <span>Scanning Infrastructure: {formData.domain}</span>
+                        <span>In Progress...</span>
+                      </div>
+                      <div className="h-2 bg-primary/10 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary w-2/3 animate-[shimmer_2s_infinite]" />
+                      </div>
+                      <p className="text-sm text-muted-foreground">Checking 1,500+ data points across the open web...</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Score Card */}
+                <div className={`rounded-[2.5rem] border p-8 md:p-12 transition-all duration-500 relative overflow-hidden ${isComplete && assessment ? getGradeBg(assessment.securityScore) : "border-border/50 bg-card"}`}>
+                  <div className="relative z-10 flex flex-col md:flex-row items-center gap-12">
+                    <div className="flex-shrink-0">
+                      {isComplete && assessment?.securityScore ? (
+                        <CircularGrade grade={assessment.securityScore} size="lg" />
                       ) : (
-                         <div className="space-y-4">
-                            <div className="flex items-center gap-2 text-red-500 font-bold">
-                              <AlertTriangle className="h-5 w-5" />
-                              {Array.isArray(breachData) ? breachData.length : breachData.breaches?.length || 0} Breaches Detected
-                            </div>
-                            <div className="grid gap-3 md:grid-cols-2">
-                              {(Array.isArray(breachData) ? breachData : breachData.breaches || []).map((breach: any, i: number) => (
-                                <div key={i} className="bg-red-500/5 border border-red-500/20 rounded-lg p-3 text-sm">
-                                  <div className="font-bold text-red-700 dark:text-red-400">{breach.name || breach.title}</div>
-                                  <div className="text-xs text-muted-foreground mt-1">Exposed: {breach.dataClasses?.join(", ")}</div>
-                                </div>
-                              ))}
-                            </div>
-                         </div>
+                        <Skeleton className="w-40 h-40 rounded-full" />
                       )}
-                    </CardContent>
-                  </Card>
+                    </div>
+                    
+                    <div className="flex-1 text-center md:text-left">
+                      {isComplete && assessment?.securityScore ? (
+                        <>
+                          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                            {calculateRiskLevel(assessment.securityScore) === "strong" ? "System Secure" :
+                             calculateRiskLevel(assessment.securityScore) === "at-risk" ? "Critical Vulnerabilities Found" :
+                             "Security Improvements Required"}
+                          </h2>
+                          <p className="text-lg text-muted-foreground mb-6">
+                            We found issues that could be exploited by attackers. Your organization has a <span className="font-bold text-foreground">{assessment.securityScore}</span> rating based on external visibility.
+                          </p>
+                          <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                            <div className="px-4 py-2 rounded-lg bg-background/50 border border-border/50 text-sm">
+                              <span className="text-muted-foreground">Target:</span> <span className="font-medium">{formData.domain}</span>
+                            </div>
+                            <div className="px-4 py-2 rounded-lg bg-background/50 border border-border/50 text-sm">
+                              <span className="text-muted-foreground">Date:</span> <span className="font-medium">{new Date().toLocaleDateString()}</span>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="space-y-4 w-full">
+                          <Skeleton className="w-3/4 h-8" />
+                          <Skeleton className="w-full h-4" />
+                          <Skeleton className="w-2/3 h-4" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
-                  {/* Final CTA */}
-                  <div className="rounded-[2rem] bg-gradient-to-br from-primary to-blue-600 p-8 md:p-12 text-white text-center shadow-2xl">
-                    <h2 className="text-3xl font-bold mb-4">Get the Full Technical Report</h2>
-                    <p className="text-white/80 max-w-2xl mx-auto mb-8 text-lg">
-                      This is just a summary. Download the complete PDF report with detailed technical findings, CVEs, and remediation steps.
-                    </p>
-                    <div className="flex flex-col sm:flex-row justify-center gap-4">
-                      {assessmentId && (
-                        <Button 
-                          size="lg" 
-                          className="h-14 px-8 bg-white text-primary hover:bg-white/90 font-bold rounded-xl shadow-xl"
-                          onClick={handleDownloadReport}
+                {/* Categories Grid */}
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {CATEGORIES.map((cat, i) => {
+                    const grade = getCategoryGrade(cat.gradeKey);
+                    const catFindings = getCategoryFindings(cat.key);
+                    const isExpanded = expandedCategory === cat.key;
+                    const Icon = cat.icon;
+
+                    return (
+                      <AnimatedSection 
+                        key={cat.key}
+                        delay={i * 0.1}
+                      >
+                        <Card
+                          className={`h-full cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 ${isExpanded ? "ring-2 ring-primary border-primary" : "border-border/50"} ${grade ? "" : "opacity-70"}`}
+                          onClick={() => setExpandedCategory(isExpanded ? null : cat.key)}
                         >
-                          <Download className="mr-2 h-5 w-5" /> Download PDF Report
-                        </Button>
-                      )}
+                          <CardContent className="p-6">
+                            {grade ? (
+                              <>
+                                <div className="flex justify-between items-start mb-4">
+                                  <div className={`p-3 rounded-xl ${getGradeBg(grade)}`}>
+                                    <Icon className={`h-6 w-6 ${getGradeColor(grade)}`} />
+                                  </div>
+                                  <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg border ${getGradeBg(grade)} ${getGradeColor(grade)}`}>
+                                    {grade}
+                                  </div>
+                                </div>
+                                
+                                <h3 className="font-bold text-lg mb-1">{cat.name}</h3>
+                                <p className="text-sm text-muted-foreground mb-4">{cat.description}</p>
+                                
+                                <div className="flex items-center justify-between text-xs font-medium bg-muted/50 p-2 rounded-lg">
+                                  <span>{catFindings.length} Issues Found</span>
+                                  {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                                </div>
+
+                                {isExpanded && (
+                                  <div className="overflow-hidden animate-in slide-in-from-top-2 duration-200">
+                                    <div className="pt-4 space-y-3">
+                                      {catFindings.length === 0 ? (
+                                        <div className="text-green-500 text-sm flex items-center gap-2">
+                                          <CheckCircle className="w-4 h-4" /> No issues detected
+                                        </div>
+                                      ) : (
+                                        catFindings.map((finding: any, idx: number) => (
+                                          <div key={idx} className="text-sm bg-background p-3 rounded-lg border border-border/50">
+                                            <div className="flex justify-between items-start mb-1">
+                                              <span className="font-medium">{finding.name || finding.title}</span>
+                                              {finding.severity && (
+                                                <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold ${getSeverityColor(finding.severity)}`}>
+                                                  {finding.severity}
+                                                </span>
+                                              )}
+                                            </div>
+                                            <p className="text-xs text-muted-foreground">{finding.description}</p>
+                                          </div>
+                                        ))
+                                      )}
+                                    </div>
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <div className="space-y-4">
+                                <div className="flex justify-between">
+                                  <Skeleton className="w-12 h-12 rounded-xl" />
+                                  <Skeleton className="w-10 h-10 rounded-full" />
+                                </div>
+                                <Skeleton className="w-3/4 h-6" />
+                                <Skeleton className="w-full h-4" />
+                              </div>
+                            )}
+                          </CardContent>
+                        </Card>
+                      </AnimatedSection>
+                    );
+                  })}
+                </div>
+
+                {/* Dark Web Card */}
+                <Card className="border-border/50 shadow-lg overflow-hidden">
+                  <div className="bg-muted/30 p-6 border-b border-border/50 flex items-center gap-3">
+                    <ShieldAlert className="h-6 w-6 text-orange-500" />
+                    <h3 className="font-bold text-lg">Dark Web Monitoring</h3>
+                  </div>
+                  <CardContent className="p-6">
+                    {breachLoading && !isComplete ? (
+                      <div className="flex items-center gap-3 text-muted-foreground">
+                         <Loader2 className="animate-spin" /> Scanning dark web marketplaces...
+                      </div>
+                    ) : !breachData || (Array.isArray(breachData) && breachData.length === 0) ? (
+                      <div className="flex items-center gap-4 text-green-500">
+                        <CheckCircle className="h-8 w-8" />
+                        <div>
+                          <p className="font-bold">No Leaks Found</p>
+                          <p className="text-sm text-muted-foreground">Your domain does not appear in known breach databases.</p>
+                        </div>
+                      </div>
+                    ) : (
+                       <div className="space-y-4">
+                          <div className="flex items-center gap-2 text-red-500 font-bold">
+                            <AlertTriangle className="h-5 w-5" />
+                            {Array.isArray(breachData) ? breachData.length : breachData.breaches?.length || 0} Breaches Detected
+                          </div>
+                          <div className="grid gap-3 md:grid-cols-2">
+                            {(Array.isArray(breachData) ? breachData : breachData.breaches || []).map((breach: any, i: number) => (
+                              <div key={i} className="bg-red-500/5 border border-red-500/20 rounded-lg p-3 text-sm">
+                                <div className="font-bold text-red-700 dark:text-red-400">{breach.name || breach.title}</div>
+                                <div className="text-xs text-muted-foreground mt-1">Exposed: {breach.dataClasses?.join(", ")}</div>
+                              </div>
+                            ))}
+                          </div>
+                       </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                {/* Final CTA */}
+                <div className="rounded-[2rem] bg-gradient-to-br from-primary to-blue-600 p-8 md:p-12 text-white text-center shadow-2xl">
+                  <h2 className="text-3xl font-bold mb-4">Get the Full Technical Report</h2>
+                  <p className="text-white/80 max-w-2xl mx-auto mb-8 text-lg">
+                    This is just a summary. Download the complete PDF report with detailed technical findings, CVEs, and remediation steps.
+                  </p>
+                  <div className="flex flex-col sm:flex-row justify-center gap-4">
+                    {assessmentId && (
                       <Button 
                         size="lg" 
-                        variant="outline" 
-                        className="h-14 px-8 border-white/30 text-white hover:bg-white/10 hover:text-white rounded-xl"
-                        onClick={openModal}
+                        className="h-14 px-8 bg-white text-primary hover:bg-white/90 font-bold rounded-xl shadow-xl"
+                        onClick={handleDownloadReport}
                       >
-                        Talk to an Expert
+                        <Download className="mr-2 h-5 w-5" /> Download PDF Report
                       </Button>
-                    </div>
+                    )}
+                    <Button 
+                      size="lg" 
+                      variant="outline" 
+                      className="h-14 px-8 border-white/30 text-white hover:bg-white/10 hover:text-white rounded-xl"
+                      onClick={openModal}
+                    >
+                      Talk to an Expert
+                    </Button>
                   </div>
+                </div>
 
-                </motion.div>
-              )}
-            </AnimatePresence>
+              </AnimatedSection>
+            )}
 
           </div>
         </div>

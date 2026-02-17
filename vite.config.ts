@@ -8,24 +8,18 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "0.0.0.0",
     port: 5175,
-    strictPort: true,
+    strictPort: false,
     cors: true,
-    hmr: {
-      overlay: false,
-      host: "100.123.128.103",
-      port: 5175,
-      protocol: "ws",
-    },
   },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
-    dedupe: ['react', 'react-dom', 'framer-motion'],
+    dedupe: ['react', 'react-dom'],
   },
   optimizeDeps: {
-    include: ['react', 'react-dom', 'framer-motion'],
+    include: ['react', 'react-dom'],
   },
   build: {
     rollupOptions: {
@@ -34,7 +28,6 @@ export default defineConfig(({ mode }) => ({
           // Split vendor chunks for better caching
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-accordion', '@radix-ui/react-separator', '@radix-ui/react-label', '@radix-ui/react-slot', '@radix-ui/react-toast', '@radix-ui/react-tooltip', '@radix-ui/react-toggle'],
-          'animation-vendor': ['framer-motion'],
           'icons-vendor': ['lucide-react'],
         },
       },

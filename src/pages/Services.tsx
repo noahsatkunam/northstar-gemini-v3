@@ -1,9 +1,8 @@
 import { Layout } from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { Server, Shield, Bot, Lightbulb, CheckCircle2, ArrowRight, ChevronRight, Cpu, Globe, Zap } from "lucide-react";
+import { Server, Shield, Bot, Lightbulb, CheckCircle2, ArrowRight, Zap } from "lucide-react";
 import { useContactModal } from "@/components/ContactModal";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState } from "react";
+import { AnimatedSection } from "@/components/motion/AnimatedSection";
 import { Link } from "react-router-dom";
 
 const serviceCategories = [
@@ -67,26 +66,16 @@ const serviceCategories = [
 
 export default function Services() {
   const { openModal } = useContactModal();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"]
-  });
 
   return (
     <Layout>
       {/* HERO */}
-      <section className="relative min-h-[80vh] flex items-center justify-center overflow-hidden bg-background pt-20">
+      <section className="relative min-h-[60vh] flex items-center justify-center overflow-hidden bg-background pt-20">
         <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-[0.03]" />
         <div className="absolute top-0 right-0 w-[60vw] h-[60vw] bg-primary/5 rounded-full blur-[100px] animate-pulse" />
         
-        <div className="container relative z-10 px-4 md:px-8">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="max-w-4xl mx-auto text-center"
-          >
+        <div className="container relative z-10 px-4 md:px-8 text-center">
+          <AnimatedSection>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-accent/10 text-accent text-sm font-medium mb-6 border border-accent/20">
               <Zap className="w-4 h-4" />
               <span>Our Services</span>
@@ -110,13 +99,13 @@ export default function Services() {
                 </Button>
               </Link>
             </div>
-          </motion.div>
+          </AnimatedSection>
         </div>
       </section>
 
-      {/* STICKY SCROLL SECTION */}
-      <section ref={containerRef} className="relative bg-background py-20">
-        <div className="container px-4 md:px-8">
+      {/* SERVICES LIST */}
+      <section className="relative bg-background py-20">
+        <div className="container px-4 md:px-8 space-y-24">
           {serviceCategories.map((service, index) => (
             <ServiceBlock key={service.id} service={service} index={index} />
           ))}
@@ -148,74 +137,69 @@ export default function Services() {
 
 function ServiceBlock({ service, index }: { service: any, index: number }) {
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-100px" }}
-      transition={{ duration: 0.6, delay: index * 0.1 }}
-      className="min-h-screen flex items-center justify-center py-20 sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border/10 last:border-0"
+    <AnimatedSection 
+      className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center w-full"
+      delay={index * 0.1}
     >
-      <div className="grid lg:grid-cols-2 gap-12 lg:gap-24 items-center w-full">
-        <div className="order-2 lg:order-1 space-y-8">
-          <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${service.color} text-white shadow-lg`}>
-            <service.icon className="w-8 h-8" />
-          </div>
-          
-          <div>
-            <h3 className={`text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r ${service.color} mb-2 uppercase tracking-wider`}>
-              {service.subtitle}
-            </h3>
-            <h2 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-              {service.title}
-            </h2>
-            <p className="text-xl text-muted-foreground leading-relaxed">
-              {service.description}
-            </p>
-          </div>
-
-          <ul className="space-y-4">
-            {service.features.map((feature: string, i: number) => (
-              <li key={i} className="flex items-center gap-4 text-lg font-medium">
-                <div className={`w-6 h-6 rounded-full bg-gradient-to-r ${service.color} flex items-center justify-center text-white text-xs`}>
-                  <CheckCircle2 className="w-4 h-4" />
-                </div>
-                {feature}
-              </li>
-            ))}
-          </ul>
-
-          <Button variant="outline" className="group h-12 px-6 rounded-full text-lg hover:bg-primary hover:text-white transition-all">
-            Learn More <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
-          </Button>
+      <div className={`order-2 ${index % 2 === 0 ? 'lg:order-1' : 'lg:order-2'} space-y-8`}>
+        <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br ${service.color} text-white shadow-lg`}>
+          <service.icon className="w-8 h-8" />
+        </div>
+        
+        <div>
+          <h3 className={`text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r ${service.color} mb-2 uppercase tracking-wider`}>
+            {service.subtitle}
+          </h3>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-6">
+            {service.title}
+          </h2>
+          <p className="text-xl text-muted-foreground leading-relaxed">
+            {service.description}
+          </p>
         </div>
 
-        <div className="order-1 lg:order-2 relative">
-          <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-10 blur-3xl rounded-full`} />
-          <div className="relative aspect-square rounded-[2rem] overflow-hidden border border-border/50 bg-card shadow-2xl group hover:scale-[1.02] transition-transform duration-500">
-             <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent z-10" />
-             {/* Abstract Visual Representation */}
-             <div className="absolute inset-0 flex items-center justify-center">
-                <service.icon className={`w-48 h-48 text-muted-foreground/10 group-hover:text-primary/20 transition-colors duration-500`} />
-             </div>
-             
-             {/* Decorative UI Elements */}
-             <div className="absolute bottom-8 left-8 right-8 p-6 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 z-20">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex gap-2">
-                    <div className="w-3 h-3 rounded-full bg-red-500" />
-                    <div className="w-3 h-3 rounded-full bg-yellow-500" />
-                    <div className="w-3 h-3 rounded-full bg-green-500" />
-                  </div>
-                  <div className="text-xs font-mono text-muted-foreground">STATUS: ACTIVE</div>
+        <ul className="space-y-4">
+          {service.features.map((feature: string, i: number) => (
+            <li key={i} className="flex items-center gap-4 text-lg font-medium">
+              <div className={`w-6 h-6 rounded-full bg-gradient-to-r ${service.color} flex items-center justify-center text-white text-xs`}>
+                <CheckCircle2 className="w-4 h-4" />
+              </div>
+              {feature}
+            </li>
+          ))}
+        </ul>
+
+        <Button variant="outline" className="group h-12 px-6 rounded-full text-lg hover:bg-primary hover:text-white transition-all">
+          Learn More <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+        </Button>
+      </div>
+
+      <div className={`order-1 ${index % 2 === 0 ? 'lg:order-2' : 'lg:order-1'} relative`}>
+        <div className={`absolute inset-0 bg-gradient-to-br ${service.color} opacity-10 blur-3xl rounded-full`} />
+        <div className="relative aspect-square rounded-[2rem] overflow-hidden border border-border/50 bg-card shadow-xl group hover:scale-[1.02] transition-transform duration-500">
+           <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent z-10" />
+           {/* Abstract Visual Representation */}
+           <div className="absolute inset-0 flex items-center justify-center">
+              <service.icon className={`w-48 h-48 text-muted-foreground/10 group-hover:text-primary/20 transition-colors duration-500`} />
+           </div>
+           
+           {/* Decorative UI Elements */}
+           <div className="absolute bottom-8 left-8 right-8 p-6 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 z-20">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 rounded-full bg-red-500" />
+                  <div className="w-3 h-3 rounded-full bg-yellow-500" />
+                  <div className="w-3 h-3 rounded-full bg-green-500" />
                 </div>
-                <div className="space-y-2">
-                  <div className="h-2 bg-white/20 rounded-full w-3/4" />
-                  <div className="h-2 bg-white/20 rounded-full w-1/2" />
-                </div>
-             </div>
-          </div>
+                <div className="text-xs font-mono text-muted-foreground">STATUS: ACTIVE</div>
+              </div>
+              <div className="space-y-2">
+                <div className="h-2 bg-white/20 rounded-full w-3/4" />
+                <div className="h-2 bg-white/20 rounded-full w-1/2" />
+              </div>
+           </div>
         </div>
       </div>
-    </motion.div>
+    </AnimatedSection>
   );
 }

@@ -1,7 +1,6 @@
 import { ReactNode, useState, useEffect } from "react";
 import { Header } from "./Header";
 import { Footer } from "./Footer";
-import { ScrollProgress } from "@/components/motion/ScrollProgress";
 import { X } from "lucide-react";
 
 const API = import.meta.env.VITE_API_URL || "http://localhost:3001";
@@ -57,7 +56,6 @@ export function Layout({ children }: LayoutProps) {
           </button>
         </div>
       )}
-      <ScrollProgress />
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:ring-2 focus:ring-ring focus:ring-offset-2"

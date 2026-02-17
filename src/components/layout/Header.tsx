@@ -4,7 +4,6 @@ import { Menu, X, Wrench, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useContactModal } from "@/components/ContactModal";
 import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "framer-motion";
 
 const navigation = [
   { name: "Home", href: "/", isTool: false },
@@ -52,10 +51,7 @@ export function Header() {
 
   return (
     <>
-      <motion.header
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5 }}
+      <header
         className={cn(
           "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
           isScrolled ? "py-2" : "py-3"
@@ -124,48 +120,47 @@ export function Header() {
             </div>
           </div>
         </div>
-      </motion.header>
+      </header>
 
       {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-background/95 backdrop-blur-3xl flex flex-col justify-center px-8"
-          >
-            <nav className="flex flex-col gap-6">
-              {navigation.map((item, i) => (
-                <motion.div
-                  key={item.name}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.1 }}
-                >
-                  <Link
-                    to={item.href}
-                    className="text-4xl font-bold tracking-tight text-foreground hover:text-primary transition-colors flex items-center justify-between group"
-                  >
-                    {item.name}
-                    <ChevronRight className="w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </Link>
-                </motion.div>
-              ))}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.5 }}
-                className="mt-8"
-              >
-                <Button size="lg" className="w-full text-xl h-16 rounded-2xl" onClick={openModal}>
-                  Contact Us
-                </Button>
-              </motion.div>
-            </nav>
-          </motion.div>
+      <div
+        className={cn(
+          "fixed inset-0 z-40 bg-background/95 backdrop-blur-3xl flex flex-col justify-center px-8 transition-opacity duration-300",
+          mobileMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         )}
-      </AnimatePresence>
+      >
+        <nav className="flex flex-col gap-6">
+          {navigation.map((item, i) => (
+            <div
+              key={item.name}
+              className={cn(
+                "transition-all duration-500 transform",
+                mobileMenuOpen ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
+              )}
+              style={{ transitionDelay: `${i * 100}ms` }}
+            >
+              <Link
+                to={item.href}
+                className="text-4xl font-bold tracking-tight text-foreground hover:text-primary transition-colors flex items-center justify-between group"
+              >
+                {item.name}
+                <ChevronRight className="w-8 h-8 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </Link>
+            </div>
+          ))}
+          <div
+            className={cn(
+              "mt-8 transition-all duration-500 transform",
+              mobileMenuOpen ? "translate-y-0 opacity-100" : "translate-y-4 opacity-0"
+            )}
+            style={{ transitionDelay: "500ms" }}
+          >
+            <Button size="lg" className="w-full text-xl h-16 rounded-2xl" onClick={openModal}>
+              Contact Us
+            </Button>
+          </div>
+        </nav>
+      </div>
     </>
   );
 }

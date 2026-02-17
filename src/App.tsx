@@ -4,7 +4,6 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { MotionConfig } from "framer-motion";
 import { ContactModalProvider } from "@/components/ContactModal";
 import { ScrollToTop } from "@/components/ScrollToTop";
 
@@ -82,11 +81,9 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <TooltipProvider>
-        <MotionConfig reducedMotion="user">
-          <ContactModalProvider>
-            <AppContent />
-          </ContactModalProvider>
-        </MotionConfig>
+        <ContactModalProvider>
+          <AppContent />
+        </ContactModalProvider>
       </TooltipProvider>
     </BrowserRouter>
   </QueryClientProvider>
